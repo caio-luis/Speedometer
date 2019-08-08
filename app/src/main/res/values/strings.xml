@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Teste Velocímetro MVP</string>
+    <string name="gps_service_requisition_message">Requisitando serviço de GPS...</string>
+    <string name="main_button_start">Iniciar</string>
+    <string name="main_button_stop">Parar</string>
+    <string name="speedometer_text_idle">--</string>
+    <string name="error_message_provider_disabled">A localização está desabilitada!</string>
+    <string name="idle_state_speedometer_message">Velocímetro parado.</string>
+    <string name="teste">teste</string>
+    <string name="provider_disabled_message">A localização está desablitada!</string>
+</resources>
