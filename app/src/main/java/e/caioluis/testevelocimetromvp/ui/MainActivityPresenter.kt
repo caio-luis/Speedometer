@@ -65,10 +65,8 @@ class MainActivityPresenter(
 
     override fun setIdleState() {
         mView.toggleButton()
-        mView.showSpeedometerValue(
-            context
-                .getString(R.string.speedometer_text_idle)
-        )
+        mView.showSpeedometerValue(context
+                .getString(R.string.speedometer_text_idle))
     }
 
     private val locationListener = object : LocationListener {

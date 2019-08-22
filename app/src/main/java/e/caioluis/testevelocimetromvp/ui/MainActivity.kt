@@ -67,11 +67,11 @@ open class MainActivity : AppCompatActivity(), MainActivityContract.View {
         }
     }
 
-    override fun showToastMessage(message: Int) {
+    override fun showToastMessage(resource: Int) {
 
         Toast.makeText(
             context,
-            message,
+            resource,
             Toast.LENGTH_SHORT
         ).show()
     }
