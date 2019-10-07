@@ -12,61 +12,105 @@ import android.os.Bundle
 import androidx.core.app.ActivityCompat
 import e.caioluis.testevelocimetromvp.R
 import e.caioluis.testevelocimetromvp.ui.MainActivityContract.Presenter
+import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivityPresenter(
-
-    private val mView: MainActivityContract.View,
-    private val context: Context,
-    private var lm: LocationManager
+    private val view: MainActivityContract.View,
+    private val context: Context
 
 ) : Presenter {
 
-    override fun requestProvider() {
-        mView.showToastMessage(R.string.provider_disabled_message)
+    private val mainActivity = context as Activity
+    private var locationManager =
+        context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+
+    override fun buttonToggled(isChecked: Boolean) {
+
+        when {
+            !isChecked -> {
+                stopSpeedometer()
+                return
+            }
+            !hasGPSPermission() -> {
+                requestGPSPermission()
+                setIdleState()
+                return
+            }
+            !isLocationEnabled() -> {
+                requestProvider()
+                setIdleState()
+                return
+            }
+            else -> startSpeedometer()
+        }
     }
 
-    override fun stopSpeedometer() {
-
-        lm.removeUpdates(locationListener)
-        mView.showToastMessage(R.string.idle_state_speedometer_message)
+    private fun requestProvider() {
+        view.showToastMessage(R.string.provider_disabled_message)
     }
 
-    override fun isLocationEnabled(): Boolean {
+    private fun stopSpeedometer() {
 
-        return lm.isProviderEnabled(LocationManager.GPS_PROVIDER)
-
+        locationManager.removeUpdates(locationListener)
+        view.showToastMessage(R.string.idle_state_speedometer_message)
     }
 
-    override fun requestGPSPermission() {
+    private fun isLocationEnabled(): Boolean {
+
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+    }
+
+    private fun requestGPSPermission() {
 
         val permission = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
 
-        ActivityCompat.requestPermissions(context as Activity, permission, 0)
+        ActivityCompat.requestPermissions(mainActivity, permission, 0)
     }
 
     @SuppressLint("MissingPermission")
-    override fun startSpeedometer() {
+    private fun startSpeedometer() {
 
-        lm.requestLocationUpdates(
+        locationManager.requestLocationUpdates(
             LocationManager.GPS_PROVIDER,
             0L,
             0f,
             locationListener
         )
-        mView.showToastMessage(R.string.gps_service_requisition_message)
+        view.showToastMessage(R.string.gps_service_requisition_message)
     }
 
-    override fun hasGPSPermission(): Boolean {
+    private fun hasGPSPermission(): Boolean {
         return ActivityCompat.checkSelfPermission(
             context,
             Manifest.permission.ACCESS_FINE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED
     }
 
-    override fun setIdleState() {
-        mView.toggleButton()
-        mView.showSpeedometerValue(context
-                .getString(R.string.speedometer_text_idle))
+    private fun setIdleState() {
+        toggleButton()
+        showSpeedometerValue(
+            context
+                .getString(R.string.speedometer_text_idle)
+        )
+    }
+
+    private fun showSpeedometerValue(value: String) {
+        mainActivity.main_tv_speedometer.text = value
+    }
+
+    override fun viewStopped() {
+        if (mainActivity.main_tbtn_start_stop.isChecked)
+            stopSpeedometer()
+    }
+
+    override fun viewResumed() {
+        if (mainActivity.main_tbtn_start_stop.isChecked)
+            setIdleState()
+    }
+
+    private fun toggleButton() = with(mainActivity) {
+
+        main_tbtn_start_stop.isChecked = !main_tbtn_start_stop.isChecked
     }
 
     private val locationListener = object : LocationListener {
@@ -76,18 +120,14 @@ class MainActivityPresenter(
         override fun onLocationChanged(location: Location?) {
 
             val speed = location!!.speed * metersToKm
-
-            mView.showSpeedometerValue("%.2f".format(speed))
+            showSpeedometerValue("%.2f".format(speed))
         }
 
-        override fun onStatusChanged(p0: String?, p1: Int, p2: Bundle?) {
-        }
+        override fun onStatusChanged(p0: String?, p1: Int, p2: Bundle?) {}
 
-        override fun onProviderEnabled(p0: String?) {
-        }
+        override fun onProviderEnabled(p0: String?) {}
 
         override fun onProviderDisabled(p0: String?) {
-
             setIdleState()
         }
     }
