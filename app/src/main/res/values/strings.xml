@@ -8,4 +8,8 @@
     <string name="idle_state_speedometer_message">Velocímetro parado.</string>
     <string name="teste">teste</string>
     <string name="provider_disabled_message">A localização está desablitada!</string>
+    <string name="error_message_location_disabled">O serviço de localização está desativado!</string>
+    <string name="togglebutton_label_on">LIGAR</string>
+    <string name="togglebutton_label_off">DESLIGAR</string>
+    <string name="speedometer_label_km">km/h</string>
 </resources>
